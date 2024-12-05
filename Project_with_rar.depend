@@ -1,0 +1,8 @@
+# depslib dependency file v1.0
+1733432632 source:d:\code_block\project_with_rar\main.cpp
+	<iostream>
+	<fstream>
+	<vector>
+	<string>
+	<cstdint>
+
