@@ -3,47 +3,44 @@
 #include <vector>
 #include <string>
 
-#include <cstdint> // Это для использования обозначений целых чисел с указанием их размера
+#include <cstdint>
 
 using namespace std;
 
-// Установить 1-байтовое выравнивание
+
 #pragma pack(push, 1)
 
-// Объявить структуру
+// Объявить структуру - 1 пункт
 struct ntfc_header
 {
-    char type[4]; //тип файла
+    uint32_t type; //тип файла
     uint16_t offsetN; // смещение N массивы
     uint16_t size_array; // размер массива
-    uint64_t number_in_lsn; // номер посследовательности
-    uint16_t number_sec_in_lsn; // номер сектора
+    uint64_t number_in_lsn; // номер посследовательности в LSN
+    uint16_t number_sec_in_lsn; // номер сектора в MFT
     uint16_t size_links; // кол-во ссылок
 
-    uint16_t offset_attribute;
-    uint16_t flags;
-    uint32_t real_size;
-    uint32_t selected_size = 1024;
-    uint64_t file_links;
-    uint32_t indificator;
+    uint16_t offset_atribute;// смещение атрибута
+    uint16_t flags; //флаги
+    uint32_t real_size;// реальный размер
+    uint32_t selected_size; //выденный размер
+    uint64_t file_links;//файловая ссылка на базовую запись
+    uint32_t indificator;//индификатор
 
-    uint32_t number_file_recording;
+    uint32_t number_file_recording;//номер файловой записи
 
-
-    // Дальше просто демонстрация
-    // char padding[8]; // Пропуск 8 байтов (просто чтобы показать)
-    // int32_t anotherInt; // Еще целое 4-байтовое число со знаком
 };
 
+// 2 пункт - вывод жирных полей
 void displayHeader(ntfc_header* header) {
-    cout << "Indificator: " << string(header->type) << endl;
-    cout << "Offset first attribute: " << int(header->offset_attribute) << endl;
-    cout << "Number of file recording: " << int(header->number_file_recording) << endl;
+    cout << "Indificator: 0x" << hex << int(header->type) << endl;
+    cout << "Offset first atribute: 0x" << hex << int(header->offset_atribute) << endl;
+    cout << "Number of file recording: 0x" << hex << int(header->number_file_recording) << endl;
 }
 
 // Восстановить выравнивание
 #pragma pack(pop)
-
+uint16_t offset_f_atribute;
 int main()
 {
     // Открыть файл в двоичном режиме
@@ -56,52 +53,21 @@ int main()
         ntfc_file.seekg(0, ios::end);
         int fileSize = ntfc_file.tellg();
         cout << "File size: " << fileSize << endl;
-
-        // Снова спозиционироваться в начало файла
+        cout << endl;
         ntfc_file.seekg(0, ios::beg);
 
-        vector<char> signature(4);
-        ntfc_file.read(signature.data(), 4);
-        string signature_str(signature.data());
 
-        // Выделить память
+        // Выделить память и считать данные
         vector<char> ntfc_data(fileSize, 0);
-
-        // Считать данные
         ntfc_file.read(ntfc_data.data(), fileSize);
 
-
-        //
-        ntfc_header* header;
-        ntfc_file.read(reinterpret_cast<char*>(&header), fileSize);
-        //
+        ntfc_header* n_header = reinterpret_cast<ntfc_header*>(&ntfc_data[0]);
 
 
-        // Инициализировать указатель на структуру
-        // (по смещению 7, потому что надо пропустить сигнатуру длиной 7 байт)
-        ntfc_header* n_type = reinterpret_cast<ntfc_header*>(&ntfc_data);
+        // Вывести жирные поля структуры-2 пункт
+        displayHeader(n_header);
 
-        // rar_header* - тип переменной
-        // p_header - имя переменной
-        // &rar_data[7] - указатель на байт массива с индексом 7
-        // reinterpret_cast<rar_header*> - приведение типа к rar_header*
-
-        // Вывести жирные поля структур
-        displayHeader(n_type);
-        //cout << signature_str;
-        //cout << ntfc_data[];
-
-        // Вывод в шестнадцатеричном представлении (hex)
-        //cout << "Type file: 0x" << int(si->type) << endl;
-
-        // Вывод в десятичном представлении (dec)
-        //cout << "Header size: " << dec << int(p_header->header_size) << endl;
-
-
-
-
-
-    }
+        }
 
     return 0;
 }
