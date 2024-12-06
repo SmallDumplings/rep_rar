@@ -33,6 +33,7 @@ struct ntfc_header
 
 // 2 пункт - вывод жирных полей
 void displayHeader(ntfc_header* header) {
+    cout << "//Task number 2//" << endl << endl;
     cout << "Indificator: 0x" << hex << int(header->type) << endl;
     cout << "Offset first atribute: 0x" << hex << int(header->offset_atribute) << endl;
     cout << "Number of file recording: 0x" << hex << int(header->number_file_recording) << endl;
@@ -71,12 +72,14 @@ string what_is_struct(uint32_t type){
 #pragma pack(pop)
 int main()
 {
+    setlocale(LC_ALL, "rus");
     // Открыть файл в двоичном режиме
     ifstream ntfc_file("File_record.dat", ios::binary);
 
     // Убедиться, что открылся
     if(ntfc_file.is_open())
     {
+        cout << "//Task number 1//" << endl << endl;
         // Определить размер файла
         ntfc_file.seekg(0, ios::end);
         int fileSize = ntfc_file.tellg();
@@ -100,13 +103,31 @@ int main()
         uint16_t offset_f_atribute;
         offset_f_atribute = int(n_header->offset_atribute);
         ntfc_header_atribut* n_atribut = reinterpret_cast<ntfc_header_atribut*>(&ntfc_data[offset_f_atribute]);
-
+        cout << endl << "//Task number 3//" << endl;
         while (n_atribut->type != 0xFFFFFFFF){
 
             cout << endl << "Name of atribut:" << what_is_struct(n_atribut->type) << endl;
             cout << "Type of atribut: 0x" << hex << n_atribut->type << endl;
+            cout << "Offset: 0x" << hex << offset_f_atribute << endl;
+
+            //4 пункт
+            if (n_atribut->type == 0x30){
+                cout << endl << "//Task number 4 //" << endl;
+                uint8_t name_file_size = ntfc_data[offset_f_atribute+0x58];
+                const wchar_t* name_in_hex = reinterpret_cast<const wchar_t*>(&ntfc_data[offset_f_atribute + 0x5A]);
+                wstring file_name(name_in_hex, name_file_size);
+                cout << "For atribute 0x30:" << endl;
+                wcout << L"Имя файла: " << file_name << endl;
+
+            }
+            //
+
             offset_f_atribute += (n_atribut->lenght);
             n_atribut = reinterpret_cast<ntfc_header_atribut*>(&ntfc_data[offset_f_atribute]);
+
+
+
+
         }
 
     }
